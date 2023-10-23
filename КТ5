@@ -1,0 +1,71 @@
+Установим необходимые библиотеки(если их нету )
+
+(это пишем в консоль)
+pip install allure-pytest
+pip install pydantic
+
+
+Создадим  файл petstore_test.py и пишем код не забыть про  import pytest :
+
+
+import pytest
+from allure_commons._allure import attach
+from allure_commons.types import AttachmentType
+from allure_pytest import plugin
+from pydantic import BaseModel
+
+
+# Определим  модннль  использованием Pydantic
+class Pet(BaseModel):
+    id: int
+    name: str
+    photoUrls: list[str]
+    status: str
+
+
+@pytest.fixture(autouse=True)
+def allure_cleanup():
+    yield
+    attach(data=plugin.allure_report(None), name="allure-report", attachment_type=AttachmentType.JSON)
+
+
+@pytest.mark.parametrize(
+    "pet",
+    [
+        Pet(id=1, name="Rex", photoUrls=["https://example.com/photo1"], status="available"),
+        Pet(id=2, name="Luna", photoUrls=["https://example.com/photo2"], status="sold"),
+    ]
+)
+def test_create_pet(pet):
+    """
+    Тест создания новой животины .
+    """
+    allure.attach(name="Payload", body=pet.json(), attachment_type=allure.attachment_type.JSON)
+    
+
+@pytest.mark.parametrize(
+    "pet_id",
+    [1, 2]
+)
+
+
+
+@pytest.mark.parametrize(
+    "pet_id",
+    [1, 2]
+)
+def test_delete_pet(pet_id):
+    """
+    Тест для удаления питомца.
+    """
+   
+Запустим тест выполнив следующую команду в командной строке:
+
+pytest --alluredir allure-results
+Это создаст отчет Allure в директории allure-results.
+
+Для просмотра отчета Allure, выполните следующую команду в командной строке:
+
+
+allure serve allure-results
+Открокм URL, который будет выведен в консоли, в браузере для просмотра отчета Allure.
